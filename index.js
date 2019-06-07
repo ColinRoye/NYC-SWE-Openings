@@ -5,7 +5,7 @@ const cheerio = require('cheerio');
 var fs = require('fs');
 
 // const XlsxPopulate = require('xlsx-populate');
-
+var baseLink = "https://www.builtinnyc.com";
 var options = {
     uri: "",
     transform: function (body) {
@@ -20,28 +20,25 @@ let initCompanies = () => {
     return tickers
 };
 
-let search = async (arr) => {
+let writeCompanies = async (companies, links) => {
     let results = [];
     for (let i = 0; i < arr.length; i++) {
         let result = await (searchHelper(arr[i]));
-        await fs.appendFileSync('marketCap.txt', result +'\n');
+        await fs.appendFileSync('companies.txt', result +'\n');
         console.log(result);
     }
 }
 
-let searchHelper = async (pageNumber) => {
+let search = async (pageNumber) => {
     var res = await request('GET', 'https://www.builtinnyc.com/companies?f[0]=total_employees%3A%5B501%20TO%20%2A%5D&f[1]=total_employees%3A%5B201%20TO%20500%5D&page=' + pageNumber, options);
     html = res.getBody().toString('utf8');
     var $ = cheerio.load(html);
-    var info = $(".main-content-first > .title")
-    			.map(function(){
-               		return ($(this).text());
-	   		}).get();
+    var companies = $(".main-content-first > .title").map(function(){return ($(this).text());}).get();
+    var links = $(".wrap-view-page > a").map(function(){return $(this).attr('href')}).get();
     // var re = /https?(.*?):\/\/(.+?)(?=https?)/;
     // info = info.split(re).filter(x => !!x);
-
-    return info;
-
+    let profile = companies.map((e, i) => [e, baseLink + links[i]]);
+    console.log(profile)
 };
 
 
@@ -55,11 +52,8 @@ async function sleep(milliseconds) {
     }
 }
 	//let companiesArr = initCompanies();
-	for(let i = 0; i < 10; i++){
-		let companies = searchHelper(i);
-		companies.then((val)=>{
-			console.log(val)
-		})
+	for(let i = 0; i < 1; i++){
+		search(i);
 	}
 
 
