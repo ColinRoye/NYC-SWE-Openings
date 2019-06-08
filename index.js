@@ -1,7 +1,6 @@
 const request = require('sync-request');
 const rp = require('request-promise');
 const cheerio = require('cheerio');
-//const test = require('./test')
 var fs = require('fs');
 
 // const XlsxPopulate = require('xlsx-populate');
@@ -13,32 +12,29 @@ var options = {
     }
 };
 
-let initCompanies = () => {
-    let raw = fs.readFileSync('./tickers', 'utf8');
-    tickers = raw.split('\n');
+// let initCompanies = () => {
+//     let raw = fs.readFileSync('./tickers', 'utf8');
+//     tickers = raw.split('\n');
+//
+//     return tickers
+// };
 
-    return tickers
-};
-
-let writeCompanies = async (companies, links) => {
-    let results = [];
-    for (let i = 0; i < arr.length; i++) {
-        let result = await (searchHelper(arr[i]));
-        await fs.appendFileSync('companies.txt', result +'\n');
-        console.log(result);
+let writeCompanies = async (profiles) => {
+    for (let i = 0; i < profiles.length; i++) {
+        await fs.appendFileSync('companies.txt', profiles[i][0] + "," + profiles[i][1] + "\n");
     }
 }
 
 let search = async (pageNumber) => {
-    var res = await request('GET', 'https://www.builtinnyc.com/companies?f[0]=total_employees%3A%5B501%20TO%20%2A%5D&f[1]=total_employees%3A%5B201%20TO%20500%5D&page=' + pageNumber, options);
+    var res = await request('GET', 'https://www.builtinnyc.com/companies?f[0]=total_employees%3A%5B501%20TO%20%2A%5D&f[1]=total_employees%3A%5B201%20TO%20500%5D&f[2]=total_employees%3A%5B51%20TO%20200%5D&f[3]=total_employees%3A%5B11%20TO%2050%5D&page=' + pageNumber, options);
     html = res.getBody().toString('utf8');
     var $ = cheerio.load(html);
     var companies = $(".main-content-first > .title").map(function(){return ($(this).text());}).get();
     var links = $(".wrap-view-page > a").map(function(){return $(this).attr('href')}).get();
-    // var re = /https?(.*?):\/\/(.+?)(?=https?)/;
-    // info = info.split(re).filter(x => !!x);
-    let profile = companies.map((e, i) => [e, baseLink + links[i]]);
-    console.log(profile)
+
+    let profiles = companies.map((e, i) => [e, baseLink + links[i]]);
+    writeCompanies(profiles);
+    console.log(profiles);
 };
 
 
@@ -51,9 +47,15 @@ async function sleep(milliseconds) {
         }
     }
 }
-	//let companiesArr = initCompanies();
-	for(let i = 0; i < 1; i++){
-		search(i);
+async function main(){
+	for(let i = 0; i < 19; i++){
+		await search(i);
+		console.log("sent")
+		sleep(100);
 	}
+
+}
+main();
+	//let companiesArr = initCompanies();
 
 
