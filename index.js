@@ -3,7 +3,6 @@ const rp = require('request-promise');
 const cheerio = require('cheerio');
 var fs = require('fs');
 
-// const XlsxPopulate = require('xlsx-populate');
 var baseLink = "https://www.builtinnyc.com";
 var options = {
     uri: "",
@@ -13,7 +12,7 @@ var options = {
 };
 
 // let initCompanies = () => {
-//     let raw = fs.readFileSync('./tickers', 'utf8');
+//     let raw = fs.readFileSync('./', 'utf8');
 //     tickers = raw.split('\n');
 //
 //     return tickers
@@ -56,6 +55,5 @@ async function main(){
 
 }
 main();
-	//let companiesArr = initCompanies();
 
 
